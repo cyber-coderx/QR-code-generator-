@@ -26,3 +26,133 @@ Fully isolated dots are fully rounded.
 
 Canvas Drawing
 Uses ctx.quadraticCurveTo for smooth corners.
+
+_-----------------------
+
+Ah! Got it — you want the **entire logic explained in plain English**, step by step, so it’s clear what’s happening behind the code. Here’s the **full logic for your rounded-dot QR generator**:
+
+---
+
+### 1. **Set up the canvas grid**
+
+* The QR code is a **21×21 grid** (can be adjusted for larger or smaller grids).
+* Each cell in the grid can either **contain a dot** (`true`) or be empty (`false`).
+* The canvas width is divided by the number of cells to determine the **size of each cell**.
+
+---
+
+### 2. **Initialize the grid**
+
+* Create a 2D array `grid[y][x]` filled with `false`.
+* This will represent the presence or absence of a dot in each position.
+
+---
+
+### 3. **Add the finder patterns**
+
+* QR codes have **three large squares** in the corners: top-left, top-right, and bottom-left.
+* For each finder pattern:
+
+  1. Loop over a **7×7 square**.
+  2. Fill cells along the **outer border** (top, bottom, left, right) as black.
+  3. Fill the **3×3 inner square** in the center as black.
+* Mark these cells as `true` in the grid so other logic knows they are occupied.
+
+---
+
+### 4. **Convert the input text into binary**
+
+* For each character in the input text:
+
+  1. Convert the character into its ASCII code.
+  2. Convert that number into an **8-bit binary string**.
+* Concatenate all characters to form a long **binary string**.
+
+---
+
+### 5. **Fill the remaining grid cells**
+
+* Start iterating **row by row, column by column**.
+* Skip the cells already filled by finder patterns.
+* For each cell:
+
+  1. Take the next bit from the binary string.
+  2. If the bit is `1`, set the grid cell to `true` (dot present).
+  3. If the bit is `0`, leave it `false` (empty).
+* Stop when all bits of the text are placed.
+
+---
+
+### 6. **Check neighbors for each dot**
+
+* For each cell that contains a dot (`true`):
+
+  1. Check the **top neighbor** (cell directly above).
+  2. Check the **bottom neighbor** (cell directly below).
+  3. Check the **left neighbor** (cell to the left).
+  4. Check the **right neighbor** (cell to the right).
+* This will determine which corners of the dot should be **rounded**.
+
+---
+
+### 7. **Apply rounded corners based on neighbors**
+
+* Maximum corner radius = **half of the cell size**.
+* **Corner logic:**
+
+  * **Top-left corner:** round only if there is **no neighbor on top and no neighbor on left**.
+  * **Top-right corner:** round only if there is **no neighbor on top and no neighbor on right**.
+  * **Bottom-right corner:** round only if there is **no neighbor on bottom and no neighbor on right**.
+  * **Bottom-left corner:** round only if there is **no neighbor on bottom and no neighbor on left**.
+* This ensures:
+
+  * Isolated dots → fully rounded.
+  * Dots touching others → only the corners without neighbors are rounded.
+
+---
+
+### 8. **Draw each dot**
+
+* Use a **canvas rectangle** to represent each dot.
+* Apply the **selective corner radius** when drawing.
+* Fill the dot with **black**.
+* Repeat for all dots in the grid.
+
+---
+
+### 9. **Result**
+
+* You get a **gapless QR-like grid**.
+* Dots are **rounded intelligently** based on their neighbors.
+* Finder patterns remain **solid squares**.
+* The text input is represented as **binary dots** on the remaining grid.
+
+---
+
+This is the **complete logic** in normal English.
+
+Essentially, it’s:
+
+1. Make a grid.
+2. Add finder patterns.
+3. Convert text → binary.
+4. Fill the grid with the binary bits.
+5. For each dot, check neighbors.
+6. Round only corners that are not touching another dot.
+7. Draw all dots on canvas.
+
+---
+
+If you want, I can also **draw a diagram showing the border-radius rules for neighbors**, so you can **visualize each corner’s rounding**. It helps a lot for this logic.
+
+Do you want me to do that?
+
+
+
+
+
+
+
+
+
+
