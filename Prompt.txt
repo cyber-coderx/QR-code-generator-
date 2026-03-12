@@ -1,0 +1,6 @@
+I want to build a QR code with HTML CSS JavaScript from scratch without the encryption part
+
+I don't need any JavaScript library I need you to build your QR code generator from scratch basic
+
+Put it in one code
+Use canvas
