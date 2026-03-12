@@ -4,3 +4,25 @@ I don't need any JavaScript library I need you to build your QR code generator f
 
 Put it in one code
 Use canvas
+
+
+How it Works:
+Grid Representation
+grid[y][x] = true if there’s a dot.
+
+Neighbor Check
+
+top, bottom, left, right are booleans if neighboring cells have dots.
+
+Selective Border Radius
+
+Each dot gets a radius only on the sides without neighbors.
+
+If a dot has a neighbor on the right → left corners rounded only.
+
+If a dot has a neighbor on the top → bottom corners rounded only.
+
+Fully isolated dots are fully rounded.
+
+Canvas Drawing
+Uses ctx.quadraticCurveTo for smooth corners.
