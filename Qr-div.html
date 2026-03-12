@@ -1,0 +1,294 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>QR Generator From Scratch</title>
+
+<style>
+body{
+font-family:Arial;
+text-align:center;
+margin-top:40px;
+background:#f4f4f4;
+}
+
+#qr{
+display:grid;
+grid-template-columns:repeat(21,10px);
+grid-template-rows:repeat(21,10px);
+background:white;
+padding:10px;
+width:max-content;
+margin:20px auto;
+}
+
+.cell{
+width:10px;
+height:10px;
+background:white;
+}
+
+.black{
+background:black;
+}
+
+input{
+padding:10px;
+width:260px;
+}
+
+button{
+padding:10px 16px;
+cursor:pointer;
+margin-left:6px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>QR Code Generator (From Scratch)</h2>
+
+<input id="text" placeholder="Enter text or URL">
+<button onclick="generate()">Generate</button>
+
+<div id="qr"></div>
+
+<script>
+
+const SIZE=21
+const DATA_CODEWORDS=19
+const EC_CODEWORDS=7
+
+function generate(){
+
+let text=document.getElementById("text").value
+
+let data=createData(text)
+let ec=reedSolomon(data)
+
+let codewords=data.concat(ec)
+
+let bits=""
+
+for(let b of codewords){
+bits+=b.toString(2).padStart(8,"0")
+}
+
+let matrix=[]
+let reserved=[]
+
+for(let r=0;r<SIZE;r++){
+matrix[r]=[]
+reserved[r]=[]
+for(let c=0;c<SIZE;c++){
+matrix[r][c]=0
+reserved[r][c]=false
+}
+}
+
+drawFinders(matrix,reserved)
+drawTiming(matrix,reserved)
+
+placeData(matrix,reserved,bits)
+
+applyMask(matrix,reserved)
+
+drawFormat(matrix,reserved)
+
+render(matrix)
+
+}
+
+function createData(text){
+
+let bytes=[]
+
+bytes.push(0b01000000 | ((text.length>>4)&0xF))
+bytes.push(((text.length&0xF)<<4) | (text.charCodeAt(0)>>4))
+
+for(let i=0;i<text.length;i++){
+bytes.push(text.charCodeAt(i))
+}
+
+while(bytes.length<DATA_CODEWORDS){
+bytes.push(bytes.length%2?0x11:0xEC)
+}
+
+return bytes.slice(0,DATA_CODEWORDS)
+
+}
+
+function drawFinders(m,r){
+
+function finder(r0,c0){
+for(let r=0;r<7;r++){
+for(let c=0;c<7;c++){
+
+let val=(r==0||r==6||c==0||c==6|| (r>=2&&r<=4&&c>=2&&c<=4))
+
+m[r0+r][c0+c]=val?1:0
+rsv(r0+r,c0+c)
+
+}
+}
+}
+
+finder(0,0)
+finder(0,14)
+finder(14,0)
+
+function rsv(r,c){reserved[r][c]=true}
+
+}
+
+function drawTiming(m,res){
+for(let i=8;i<13;i++){
+let v=i%2
+m[6][i]=v
+m[i][6]=v
+res[6][i]=true
+res[i][6]=true
+}
+}
+
+function placeData(m,res,bits){
+
+let dir=-1
+let col=SIZE-1
+let bit=0
+
+while(col>0){
+
+if(col==6) col--
+
+for(let r=(dir>0?0:SIZE-1); r>=0 && r<SIZE; r+=dir){
+
+for(let c=0;c<2;c++){
+
+let x=col-c
+let y=r
+
+if(!res[y][x]){
+
+m[y][x]=(bits[bit]=="1")?1:0
+bit++
+
+}
+
+}
+
+}
+
+dir*=-1
+col-=2
+
+}
+
+}
+
+function applyMask(m,res){
+
+for(let r=0;r<SIZE;r++){
+for(let c=0;c<SIZE;c++){
+
+if(!res[r][c]){
+
+if((r+c)%2==0){
+m[r][c]^=1
+}
+
+}
+
+}
+}
+
+}
+
+function drawFormat(m,res){
+
+let format="111011111000100"
+
+let coords=[
+[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],
+[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],
+[2,8],[1,8],[0,8]
+]
+
+for(let i=0;i<15;i++){
+
+let r=coords[i][0]
+let c=coords[i][1]
+
+m[r][c]=format[i]=="1"?1:0
+res[r][c]=true
+
+}
+
+}
+
+function reedSolomon(data){
+
+let poly=[87,229,146,149,238,102,21]
+
+let res=new Array(EC_CODEWORDS).fill(0)
+
+for(let d of data){
+
+let factor=d^res[0]
+
+res.shift()
+res.push(0)
+
+for(let i=0;i<EC_CODEWORDS;i++){
+res[i]^=gfMul(poly[i],factor)
+}
+
+}
+
+return res
+
+}
+
+const EXP=[]
+const LOG=[]
+
+let x=1
+for(let i=0;i<255;i++){
+EXP[i]=x
+LOG[x]=i
+x<<=1
+if(x&256) x^=285
+}
+
+function gfMul(a,b){
+if(a==0||b==0) return 0
+return EXP[(LOG[a]+LOG[b])%255]
+}
+
+function render(matrix){
+
+let qr=document.getElementById("qr")
+qr.innerHTML=""
+
+for(let r=0;r<SIZE;r++){
+for(let c=0;c<SIZE;c++){
+
+let div=document.createElement("div")
+div.className="cell"
+
+if(matrix[r][c]) div.classList.add("black")
+
+qr.appendChild(div)
+
+}
+}
+
+}
+
+</script>
+
+</body>
+</html>
+```
