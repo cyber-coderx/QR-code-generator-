@@ -129,30 +129,15 @@ Ah! Got it — you want the **entire logic explained in plain English**, step by
 
 ---
 
-This is the **complete logic** in normal English.
+How real modern “rounded QR” handles this
+They don’t just round each cell individually.
 
-Essentially, it’s:
+They consider clusters of connected dots and round the outer contour of the cluster:
 
-1. Make a grid.
-2. Add finder patterns.
-3. Convert text → binary.
-4. Fill the grid with the binary bits.
-5. For each dot, check neighbors.
-6. Round only corners that are not touching another dot.
-7. Draw all dots on canvas.
+Merge all connected dots into one shape.
 
----
+Apply corner rounding only on the outer edges.
 
-If you want, I can also **draw a diagram showing the border-radius rules for neighbors**, so you can **visualize each corner’s rounding**. It helps a lot for this logic.
+The inner junctions between neighboring dots remain sharp naturally.
 
-Do you want me to do that?
-
-
-
-
-
-
-
-
-
-
+This approach eliminates the “wrong sharpness” problem where individual rounded dots clash visually.
