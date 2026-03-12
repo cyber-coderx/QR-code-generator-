@@ -141,3 +141,23 @@ Apply corner rounding only on the outer edges.
 The inner junctions between neighboring dots remain sharp naturally.
 
 This approach eliminates the “wrong sharpness” problem where individual rounded dots clash visually.
+
+
+Okay so this is a logic here I want you to point out the three cases that cause the sharp corners like when you have 
+M- main dot N-neighbor dot W-white free space
+
+M N
+N W
+
+So with this case the White should have a black square in its position (overlap) then another white square or dot with only the one border radius facing the M would overlap the black square but bear in mind they should have the same size just that one would have border radius and one wouldn't
+
+
+MNM
+NWN
+So with this case the White should have a black square in its position (overlap) then another white square or dot with only the two border radiuses facing the Ms would overlap the black square but bear in mind they should have the same size just that one would have border radius and one wouldn't
+
+
+MNM
+NWN
+MNM
+So with this case the White should have a black square in its position (overlap) then another white square or dot with all sides borderradius would overlap the black square but bear in mind they should have the same size just that one would have border radius and one wouldn't
